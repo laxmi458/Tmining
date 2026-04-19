@@ -1,1605 +1,237 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TengaEarn — Earn TengaCoins</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-:root {
-  --bg: #0d0f14;
-  --card: #161b24;
-  --card2: #1c2230;
-  --border: rgba(99,130,255,0.12);
-  --brand: #6366f1;
-  --brand2: #818cf8;
-  --accent: #06d6a0;
-  --gold: #ffd166;
-  --danger: #ef476f;
-  --muted: #6b7280;
-  --text: #f1f5f9;
-  --glass: rgba(255,255,255,0.04);
-}
-html:not(.dark) {
-  --bg: #f0f4ff;
-  --card: #ffffff;
-  --card2: #f8faff;
-  --border: rgba(99,130,255,0.15);
-  --glass: rgba(99,102,241,0.05);
-  --muted: #64748b;
-  --text: #1e293b;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Space Grotesk',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
-.font-heading { font-family:'Syne',sans-serif; }
-
-/* ── BACKGROUND GLOW ── */
-body::before {
-  content:''; position:fixed; top:-200px; left:-200px; width:600px; height:600px;
-  background:radial-gradient(circle,rgba(99,102,241,0.12) 0%,transparent 70%);
-  pointer-events:none; z-index:0;
-}
-body::after {
-  content:''; position:fixed; bottom:-200px; right:-200px; width:500px; height:500px;
-  background:radial-gradient(circle,rgba(6,214,160,0.08) 0%,transparent 70%);
-  pointer-events:none; z-index:0;
-}
-
-/* ── GLASS CARD ── */
-.glass-card {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:16px; position:relative; z-index:1;
-}
-.glass-card:hover { border-color:rgba(99,130,255,0.25); }
-
-/* ── INPUTS ── */
-input,textarea,select {
-  width:100%; padding:12px 14px; border-radius:12px;
-  background:var(--card2); border:1px solid var(--border);
-  color:var(--text); font-family:inherit; font-size:14px; outline:none;
-  transition:border-color .2s;
-}
-input:focus,textarea:focus,select:focus { border-color:var(--brand); }
-input::placeholder,textarea::placeholder { color:var(--muted); }
-
-/* ── BUTTONS ── */
-.btn-primary {
-  display:inline-flex; align-items:center; justify-content:center;
-  padding:12px 20px; border-radius:12px; font-weight:600; font-size:14px;
-  background:linear-gradient(135deg,#6366f1,#818cf8); color:#fff;
-  border:none; cursor:pointer; transition:opacity .2s,transform .1s;
-}
-.btn-primary:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
-.btn-primary:disabled { opacity:.5; cursor:not-allowed; }
-.btn-accent { background:linear-gradient(135deg,#06d6a0,#00b4d8); color:#fff; padding:10px 16px; border-radius:10px; font-weight:600; font-size:13px; border:none; cursor:pointer; }
-.btn-danger { background:linear-gradient(135deg,#ef476f,#ff6b6b); color:#fff; padding:10px 16px; border-radius:10px; font-weight:600; font-size:13px; border:none; cursor:pointer; }
-.btn-secondary { background:var(--glass); border:1px solid var(--border); color:var(--text); padding:10px 16px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; }
-.btn-sm { padding:7px 12px !important; font-size:12px !important; border-radius:8px !important; }
-
-/* ── BADGES ── */
-.badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
-.badge-success { background:rgba(6,214,160,.15); color:#06d6a0; }
-.badge-pending { background:rgba(255,209,102,.15); color:#ffd166; }
-.badge-rejected { background:rgba(239,71,111,.15); color:#ef476f; }
-.badge-active { background:rgba(99,102,241,.15); color:#818cf8; }
-
-/* ── COIN ── */
-.coin-icon { display:inline-flex; align-items:center; gap:4px; color:var(--gold); font-weight:700; }
-.coin-icon i { font-size:.85em; }
-
-/* ── STAT CARD ── */
-.stat-card { padding:20px; text-align:center; }
-.stat-card i { font-size:24px; margin-bottom:8px; display:block; }
-.stat-card .value { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; }
-.stat-card .label { font-size:11px; color:var(--muted); margin-top:2px; text-transform:uppercase; letter-spacing:.05em; }
-
-/* ── PROGRESS BAR ── */
-.progress-bar { height:6px; background:var(--card2); border-radius:10px; overflow:hidden; }
-.progress-bar .fill { height:100%; background:linear-gradient(90deg,#6366f1,#06d6a0); border-radius:10px; transition:width .5s; }
-
-/* ── AVATAR ── */
-.avatar { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; color:#fff; font-family:'Syne',sans-serif; flex-shrink:0; }
-
-/* ── LIST ITEM ── */
-.list-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
-.list-item:last-child { border-bottom:none; }
-
-/* ── SECTION GRID ── */
-.section-grid { display:grid; gap:12px; }
-
-/* ── SPINNER ── */
-.spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; display:inline-block; }
-@keyframes spin { to { transform:rotate(360deg); } }
-
-/* ── FILE UPLOAD ── */
-.file-upload {
-  border:2px dashed var(--border); border-radius:14px; padding:24px;
-  text-align:center; cursor:pointer; transition:border-color .2s;
-  color:var(--muted);
-}
-.file-upload:hover { border-color:var(--brand); color:var(--brand); }
-.file-upload i { font-size:28px; margin-bottom:8px; }
-
-/* ── TOAST ── */
-#toastContainer { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
-.toast {
-  padding:12px 18px; border-radius:12px; font-size:13px; font-weight:600;
-  backdrop-filter:blur(20px); animation:slideIn .3s ease;
-  max-width:280px;
-}
-.toast.success { background:rgba(6,214,160,.15); border:1px solid rgba(6,214,160,.3); color:#06d6a0; }
-.toast.error { background:rgba(239,71,111,.15); border:1px solid rgba(239,71,111,.3); color:#ef476f; }
-.toast.info { background:rgba(99,102,241,.15); border:1px solid rgba(99,102,241,.3); color:#818cf8; }
-@keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
-
-/* ── MODAL ── */
-.modal-overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(8px);
-  z-index:1000; display:flex; align-items:flex-end; justify-content:center;
-  opacity:0; pointer-events:none; transition:opacity .3s;
-}
-.modal-overlay.show { opacity:1; pointer-events:all; }
-.modal-content {
-  background:var(--card); border:1px solid var(--border); border-radius:24px 24px 0 0;
-  width:100%; max-width:480px; padding:28px 24px;
-  transform:translateY(40px); transition:transform .3s;
-}
-.modal-overlay.show .modal-content { transform:translateY(0); }
-
-/* ── TIMER RING ── */
-.timer-ring { position:relative; width:80px; height:80px; }
-.timer-ring svg circle { fill:none; stroke-width:6; }
-.timer-ring svg circle.track { stroke:var(--card2); }
-.timer-ring svg circle.progress { stroke:#6366f1; transform:rotate(-90deg); transform-origin:50% 50%; transition:stroke-dashoffset .5s; }
-.time-text { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:20px; font-weight:800; font-family:'Syne',sans-serif; }
-
-/* ══════════════════════════════════════
-   AUTH SCREEN
-══════════════════════════════════════ */
-#authScreen {
-  min-height:100vh; display:flex; align-items:center; justify-content:center;
-  padding:20px; position:relative; z-index:2;
-}
-.auth-card { width:100%; max-width:400px; }
-.auth-logo { text-align:center; margin-bottom:32px; }
-.auth-logo .logo-icon {
-  width:64px; height:64px; background:linear-gradient(135deg,#6366f1,#06d6a0);
-  border-radius:20px; display:inline-flex; align-items:center; justify-content:center;
-  margin-bottom:12px; font-size:28px;
-}
-.auth-tabs { display:flex; background:var(--card2); border-radius:12px; padding:4px; margin-bottom:24px; }
-.auth-tab {
-  flex:1; padding:10px; border-radius:10px; font-weight:600; font-size:14px;
-  text-align:center; cursor:pointer; transition:.2s; color:var(--muted); border:none;
-  background:transparent; font-family:inherit;
-}
-.auth-tab.active { background:var(--brand); color:#fff; }
-
-/* ══════════════════════════════════════
-   USER PANEL
-══════════════════════════════════════ */
-#userPanel { display:none; height:100vh; flex-direction:column; position:relative; z-index:2; }
-.user-header {
-  position:sticky; top:0; z-index:50; display:flex; align-items:center;
-  gap:12px; padding:12px 16px;
-  background:var(--card); border-bottom:1px solid var(--border);
-  backdrop-filter:blur(20px);
-}
-.user-content { flex:1; overflow-y:auto; padding-bottom:80px; }
-.page { display:none; padding:16px; max-width:500px; margin:0 auto; }
-.page.active { display:block; }
-
-/* Bottom Nav */
-.bottom-nav {
-  position:fixed; bottom:0; left:0; right:0; z-index:50;
-  background:var(--card); border-top:1px solid var(--border);
-  display:flex; align-items:center; justify-content:space-around;
-  padding:8px 0 max(8px, env(safe-area-inset-bottom));
-  backdrop-filter:blur(20px);
-}
-.nav-item {
-  display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding:6px 10px; border-radius:10px; cursor:pointer;
-  color:var(--muted); font-size:10px; font-weight:600;
-  transition:.2s; border:none; background:transparent; font-family:inherit;
-}
-.nav-item i { font-size:18px; }
-.nav-item.active { color:var(--brand2); }
-.nav-item.active i { color:var(--brand); }
-
-/* ══════════════════════════════════════
-   ADMIN PANEL
-══════════════════════════════════════ */
-#adminPanel { display:none; height:100vh; position:relative; z-index:2; }
-.admin-layout { display:flex; height:100%; }
-
-/* Admin Sidebar */
-.admin-sidebar {
-  width:240px; flex-shrink:0; background:var(--card);
-  border-right:1px solid var(--border); padding:24px 16px;
-  overflow-y:auto; display:flex; flex-direction:column;
-  position:fixed; top:0; left:0; height:100vh; z-index:100;
-  transition:transform .3s;
-}
-@media(max-width:768px) {
-  .admin-sidebar { transform:translateX(-100%); }
-  .admin-sidebar.open { transform:translateX(0); }
-}
-.admin-nav-item {
-  display:flex; align-items:center; gap:10px; padding:10px 14px;
-  border-radius:10px; cursor:pointer; font-size:14px; font-weight:500;
-  color:var(--muted); transition:.2s; margin-bottom:2px; border:none;
-  background:transparent; font-family:inherit; width:100%;
-}
-.admin-nav-item:hover { background:var(--glass); color:var(--text); }
-.admin-nav-item.active { background:rgba(99,102,241,.15); color:var(--brand2); }
-.admin-nav-item i { width:16px; }
-.divider { height:1px; background:var(--border); margin:12px 0; }
-
-/* Admin Main */
-.admin-main {
-  margin-left:240px; flex:1; overflow-y:auto; height:100vh;
-}
-@media(max-width:768px) { .admin-main { margin-left:0; } }
-
-/* Sidebar overlay */
-.sidebar-overlay {
-  display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:90;
-}
-.sidebar-overlay.show { display:block; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarnHub - Make Money Online</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div id="toastContainer"></div>
-
-<!-- ══════════════════════════════════════
-     AUTH SCREEN
-══════════════════════════════════════ -->
-<div id="authScreen">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="logo-icon"><i class="fas fa-coins" style="color:#fff"></i></div>
-      <h1 class="font-heading" style="font-size:28px;font-weight:800">TengaEarn</h1>
-      <p style="color:var(--muted);font-size:13px;margin-top:4px">Earn TengaCoins daily</p>
-    </div>
-
-    <!-- Tabs -->
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tabUser" onclick="switchAuthTab('user')">
-        <i class="fas fa-user mr-1"></i> User
-      </button>
-      <button class="auth-tab" id="tabAdmin" onclick="switchAuthTab('admin')">
-        <i class="fas fa-shield-alt mr-1"></i> Admin
-      </button>
-    </div>
-
-    <!-- User Login -->
-    <div id="userLogin" class="glass-card p-6 space-y-3">
-      <h2 class="font-heading font-bold text-lg mb-1">Welcome Back</h2>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Sign in to your account</p>
-      <input type="email" id="uLoginEmail" placeholder="Email address">
-      <input type="password" id="uLoginPass" placeholder="Password">
-      <button class="btn-primary w-full mt-2" id="uLoginBtn" onclick="userLogin()">
-        <i class="fas fa-arrow-right mr-2"></i>Sign In
-      </button>
-      <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:8px">
-        New here? <span style="color:var(--brand2);cursor:pointer;font-weight:600" onclick="showUserReg()">Create Account</span>
-      </p>
-    </div>
-
-    <!-- User Register -->
-    <div id="userReg" style="display:none" class="glass-card p-6 space-y-3">
-      <h2 class="font-heading font-bold text-lg mb-1">Create Account</h2>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Start earning today</p>
-      <input type="text" id="uRegName" placeholder="Full Name">
-      <input type="email" id="uRegEmail" placeholder="Email address">
-      <input type="password" id="uRegPass" placeholder="Password (min 6 chars)">
-      <input type="text" id="uRegRef" placeholder="Referral Code (optional)">
-      <button class="btn-primary w-full mt-2" id="uRegBtn" onclick="userRegister()">
-        <i class="fas fa-user-plus mr-2"></i>Create Account
-      </button>
-      <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:8px">
-        Already have an account? <span style="color:var(--brand2);cursor:pointer;font-weight:600" onclick="showUserLogin()">Sign In</span>
-      </p>
-    </div>
-
-    <!-- Admin Login -->
-    <div id="adminLogin" style="display:none" class="glass-card p-6">
-      <div style="text-align:center;margin-bottom:20px">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#ef476f,#ff6b6b);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px">
-          <i class="fas fa-shield-alt" style="color:#fff;font-size:20px"></i>
-        </div>
-        <h2 class="font-heading font-bold">Admin Access</h2>
-        <p style="color:var(--muted);font-size:13px">Restricted area</p>
-      </div>
-      <input type="password" id="aLoginPass" placeholder="Admin Password" style="margin-bottom:12px">
-      <button class="btn-primary w-full" id="aLoginBtn" onclick="adminLogin()">
-        <i class="fas fa-shield-alt mr-2"></i>Admin Login
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     USER PANEL
-══════════════════════════════════════ -->
-<div id="userPanel">
-  <!-- Header -->
-  <header class="user-header">
-    <div style="flex:1">
-      <p style="font-size:11px;color:var(--muted)">Balance</p>
-      <div class="coin-icon font-heading" style="font-size:18px">
-        <i class="fas fa-coins"></i><span id="hdrBal">0</span> TC
-      </div>
-    </div>
-    <button onclick="toggleDark()" style="width:36px;height:36px;border-radius:10px;background:var(--glass);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center">
-      <i class="fas fa-moon text-sm" id="dkIcon" style="color:var(--muted)"></i>
-    </button>
-    <button onclick="doLogout()" style="padding:8px 14px;border-radius:10px;background:rgba(239,71,111,.1);border:1px solid rgba(239,71,111,.2);color:#ef476f;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-      <i class="fas fa-sign-out-alt mr-1"></i>Logout
-    </button>
-  </header>
-
-  <!-- Pages -->
-  <div class="user-content">
-
-    <!-- DASHBOARD -->
-    <div class="page active" id="pgDash">
-      <!-- Welcome Banner -->
-      <div class="glass-card p-5 mb-4" style="background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(6,214,160,.1));border-color:rgba(99,102,241,.3)">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div>
-            <p style="font-size:12px;color:var(--muted)">Total Balance</p>
-            <div class="coin-icon font-heading" style="font-size:32px"><i class="fas fa-coins"></i><span id="dBal">0</span></div>
-            <p style="font-size:11px;color:var(--muted);margin-top:4px">TengaCoins</p>
-          </div>
-          <div style="text-align:right">
-            <div class="badge badge-active" id="planBadge">Free Plan</div>
-            <p style="font-size:11px;color:var(--muted);margin-top:8px">Multiplier</p>
-            <p style="font-weight:800;color:var(--accent)" id="multTxt">1x</p>
-          </div>
-        </div>
-        <div class="progress-bar mt-4">
-          <div class="fill" id="multBar" style="width:15%"></div>
-        </div>
-        <p style="font-size:10px;color:var(--muted);margin-top:4px">Earning Multiplier Progress</p>
-      </div>
-
-      <!-- Stats Grid -->
-      <div class="section-grid mb-4" style="grid-template-columns:1fr 1fr">
-        <div class="glass-card stat-card">
-          <i class="fas fa-sun" style="color:#ffd166"></i>
-          <div class="value" id="dToday">0</div>
-          <div class="label">Today</div>
-        </div>
-        <div class="glass-card stat-card">
-          <i class="fas fa-calendar-week" style="color:#818cf8"></i>
-          <div class="value" id="dWeek">0</div>
-          <div class="label">This Week</div>
-        </div>
-      </div>
-
-      <!-- Activity Stats -->
-      <div class="glass-card p-5 mb-4">
-        <h3 class="font-heading font-bold mb-4">Activity Stats</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div style="text-align:center">
-            <i class="fas fa-video" style="color:#ef476f;font-size:20px;display:block;margin-bottom:4px"></i>
-            <div class="font-heading" style="font-size:20px;font-weight:800" id="sVid">0</div>
-            <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Videos</div>
-          </div>
-          <div style="text-align:center">
-            <i class="fas fa-ad" style="color:#06d6a0;font-size:20px;display:block;margin-bottom:4px"></i>
-            <div class="font-heading" style="font-size:20px;font-weight:800" id="sAd">0</div>
-            <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Ads</div>
-          </div>
-          <div style="text-align:center">
-            <i class="fas fa-tasks" style="color:#ffd166;font-size:20px;display:block;margin-bottom:4px"></i>
-            <div class="font-heading" style="font-size:20px;font-weight:800" id="sTask">0</div>
-            <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Tasks</div>
-          </div>
-          <div style="text-align:center">
-            <i class="fas fa-users" style="color:#818cf8;font-size:20px;display:block;margin-bottom:4px"></i>
-            <div class="font-heading" style="font-size:20px;font-weight:800" id="sRef">0</div>
-            <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Referrals</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="glass-card p-5 mb-4">
-        <h3 class="font-heading font-bold mb-3">Quick Earn</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button class="btn-primary" onclick="go('videos')" style="padding:14px"><i class="fas fa-play mr-2"></i>Watch Videos</button>
-          <button class="btn-accent" onclick="go('ads')" style="padding:14px;border-radius:12px;font-size:14px"><i class="fas fa-bullhorn mr-2"></i>View Ads</button>
-          <button class="btn-secondary" onclick="go('tasks')" style="padding:14px;font-size:14px"><i class="fas fa-clipboard mr-2"></i>Tasks</button>
-          <button onclick="go('withdraw')" style="padding:14px;border-radius:12px;font-size:14px;font-weight:600;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);color:#ffd166;cursor:pointer;font-family:inherit"><i class="fas fa-wallet mr-2"></i>Withdraw</button>
-        </div>
-      </div>
-
-      <!-- Referral -->
-      <div class="glass-card p-5">
-        <h3 class="font-heading font-bold mb-1">Refer & Earn</h3>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Earn 50 TC for each referral</p>
-        <div style="display:flex;gap:8px">
-          <input type="text" id="refCode" readonly style="flex:1;cursor:pointer" placeholder="Your referral code">
-          <button class="btn-accent" onclick="copyRef()" style="white-space:nowrap;border-radius:12px;font-size:13px">
-            <i class="fas fa-copy mr-1"></i>Copy
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- VIDEOS -->
-    <div class="page" id="pgVideos">
-      <h2 class="font-heading font-bold text-xl mb-4"><i class="fas fa-play mr-2" style="color:#ef476f"></i>Watch & Earn</h2>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Watch videos to earn TengaCoins</p>
-      <div id="vidList" class="space-y-3"></div>
-    </div>
-
-    <!-- ADS -->
-    <div class="page" id="pgAds">
-      <h2 class="font-heading font-bold text-xl mb-4"><i class="fas fa-bullhorn mr-2" style="color:#06d6a0"></i>View Ads & Earn</h2>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">View ads for 15 seconds to earn</p>
-      <div id="adList" class="space-y-3"></div>
-    </div>
-
-    <!-- TASKS -->
-    <div class="page" id="pgTasks">
-      <h2 class="font-heading font-bold text-xl mb-4"><i class="fas fa-clipboard-check mr-2" style="color:#ffd166"></i>Tasks</h2>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Complete tasks and earn big rewards</p>
-      <div id="taskList" class="space-y-3"></div>
-    </div>
-
-    <!-- SAVINGS -->
-    <div class="page" id="pgSavings">
-      <h2 class="font-heading font-bold text-xl mb-4"><i class="fas fa-piggy-bank mr-2" style="color:#818cf8"></i>Savings</h2>
-
-      <!-- KYC Box -->
-      <div class="glass-card p-5 mb-4" id="kycBox">
-        <h3 class="font-heading font-bold mb-1">KYC Verification Required</h3>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Complete KYC to access savings</p>
-        <div class="space-y-3">
-          <input type="text" id="kycName" placeholder="Full Name">
-          <input type="text" id="kycNID" placeholder="NID / Passport Number">
-          <input type="text" id="kycAddr" placeholder="Address">
-          <input type="text" id="kycCountry" placeholder="Country">
-          <button class="btn-primary w-full" onclick="submitKYC()"><i class="fas fa-shield-alt mr-2"></i>Submit KYC</button>
-        </div>
-      </div>
-
-      <!-- Savings Box -->
-      <div style="display:none" id="savBox">
-        <div class="glass-card p-5 mb-4">
-          <h3 class="font-heading font-bold mb-3">Open New Savings</h3>
-          <div class="space-y-3">
-            <input type="number" id="savAmt" placeholder="Amount (min 50 TC)">
-            <select id="savDur">
-              <option value="30">30 Days — 5% Interest</option>
-              <option value="60">60 Days — 8% Interest</option>
-              <option value="90">90 Days — 12% Interest</option>
-              <option value="180">180 Days — 20% Interest</option>
-            </select>
-            <button class="btn-primary w-full" onclick="openSav()"><i class="fas fa-lock mr-2"></i>Open Savings</button>
-          </div>
-        </div>
-        <h3 class="font-heading font-bold mb-3">Active Savings</h3>
-        <div id="savList" class="space-y-3"></div>
-      </div>
-    </div>
-
-    <!-- SUBSCRIPTION -->
-    <div class="page" id="pgSubscription">
-      <h2 class="font-heading font-bold text-xl mb-4"><i class="fas fa-crown mr-2" style="color:#ffd166"></i>Subscriptions</h2>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Boost your earnings with a premium plan</p>
-      <div class="space-y-3">
-        <div class="glass-card p-5" style="border-color:rgba(99,102,241,.3)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <div>
-              <h3 class="font-heading font-bold">Silver Plan</h3>
-              <p style="font-size:12px;color:var(--muted)">1.5x earning multiplier</p>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="logo">💰 EarnHub</h1>
+            <div class="user-info">
+                <span id="userBalance" class="balance">₹0</span>
+                <button id="userMenuBtn" class="user-menu-btn">👤</button>
             </div>
-            <div class="coin-icon" style="font-size:18px"><i class="fas fa-coins"></i>500 TC/mo</div>
-          </div>
-          <button class="btn-primary w-full" onclick="subPlan('silver')">Subscribe Silver</button>
         </div>
-        <div class="glass-card p-5" style="border-color:rgba(255,209,102,.3)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <div>
-              <h3 class="font-heading font-bold">Gold Plan</h3>
-              <p style="font-size:12px;color:var(--muted)">2x earning multiplier</p>
-            </div>
-            <div class="coin-icon" style="font-size:18px"><i class="fas fa-coins"></i>1000 TC/mo</div>
-          </div>
-          <button class="btn-primary w-full" style="background:linear-gradient(135deg,#f59e0b,#ffd166);color:#000" onclick="subPlan('gold')">Subscribe Gold</button>
-        </div>
-        <div class="glass-card p-5" style="border-color:rgba(6,214,160,.3)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <div>
-              <h3 class="font-heading font-bold">Platinum Plan</h3>
-              <p style="font-size:12px;color:var(--muted)">3x earning multiplier</p>
-            </div>
-            <div class="coin-icon" style="font-size:18px"><i class="fas fa-coins"></i>2000 TC/mo</div>
-          </div>
-          <button class="btn-accent w-full" style="border-radius:12px;font-size:14px;padding:12px" onclick="subPlan('platinum')">Subscribe Platinum</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ADVERTISING -->
-    <div class="page" id="pgAdvertising">
-      <h2 class="font-heading font-bold text-xl mb-4"><i class="fas fa-rocket mr-2" style="color:var(--brand2)"></i>Advertise</h2>
-      <div class="glass-card p-5 mb-4">
-        <h3 class="font-heading font-bold mb-3">Submit Ad Request</h3>
-        <div class="space-y-3">
-          <input type="text" id="adFormTitle" placeholder="Ad Title">
-          <input type="url" id="adFormLink" placeholder="Destination URL">
-          <textarea id="adFormDesc" rows="2" placeholder="Description (optional)"></textarea>
-          <select id="adFormType">
-            <option value="banner">Banner Ad</option>
-            <option value="video">Video Ad</option>
-            <option value="popup">Popup Ad</option>
-          </select>
-          <div class="file-upload" onclick="document.getElementById('adFormFile').click()">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <p>Upload Payment Screenshot</p>
-            <p id="adFormFileName" style="font-size:12px;margin-top:4px;color:var(--brand2)"></p>
-            <input type="file" id="adFormFile" accept="image/*" style="display:none">
-          </div>
-          <button class="btn-primary w-full" onclick="submitAdForm()"><i class="fas fa-paper-plane mr-2"></i>Submit Request</button>
-        </div>
-      </div>
-      <h3 class="font-heading font-bold mb-3">My Ad Submissions</h3>
-      <div id="myAdSubs" class="space-y-2"></div>
-    </div>
-
-    <!-- UPGRADE -->
-    <div class="page" id="pgUpgrade">
-      <h2 class="font-heading font-bold text-xl mb-4"><i class="fas fa-arrow-up mr-2" style="color:var(--accent)"></i>Upgrade Level</h2>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Increase your multiplier permanently</p>
-      <div id="upgList" class="space-y-3"></div>
-    </div>
-
-    <!-- WITHDRAW -->
-    <div class="page" id="pgWithdraw">
-      <h2 class="font-heading font-bold text-xl mb-4"><i class="fas fa-wallet mr-2" style="color:var(--gold)"></i>Withdraw</h2>
-      <div class="glass-card p-5 mb-4">
-        <div class="coin-icon font-heading mb-4" style="font-size:28px">
-          <i class="fas fa-coins"></i><span id="wBal">0</span> TC Available
-        </div>
-        <div class="space-y-3">
-          <input type="number" id="wAmt" placeholder="Amount (min 100 TC)">
-          <select id="wMethod">
-            <option value="bkash">bKash</option>
-            <option value="nagad">Nagad</option>
-            <option value="rocket">Rocket</option>
-            <option value="payoneer">Payoneer</option>
-            <option value="bank">Bank Transfer</option>
-          </select>
-          <input type="text" id="wAcct" placeholder="Account number / address">
-          <button class="btn-primary w-full" onclick="submitWithdraw()"><i class="fas fa-paper-plane mr-2"></i>Request Withdrawal</button>
-        </div>
-      </div>
-      <h3 class="font-heading font-bold mb-3">Withdrawal History</h3>
-      <div id="wHist" class="space-y-2"></div>
-    </div>
-
-    <!-- PROFILE -->
-    <div class="page" id="pgProfile">
-      <div class="glass-card p-6 mb-4" style="background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(6,214,160,.08));border-color:rgba(99,102,241,.3)">
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
-          <div class="avatar bg-gradient-to-br from-indigo-500 to-purple-600" style="width:56px;height:56px;font-size:22px" id="pAv">U</div>
-          <div>
-            <h2 class="font-heading font-bold text-lg" id="pName">User</h2>
-            <p style="font-size:12px;color:var(--muted)" id="pEmail">email</p>
-            <div class="badge badge-active mt-1" id="pPlan">FREE PLAN</div>
-          </div>
-          <span class="badge ml-auto" id="pKyc">PENDING</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div style="text-align:center;padding:12px;background:var(--glass);border-radius:12px">
-            <div class="font-heading" style="font-size:20px;font-weight:800;color:var(--accent)" id="pEarned">0</div>
-            <div style="font-size:10px;color:var(--muted)">TOTAL EARNED</div>
-          </div>
-          <div style="text-align:center;padding:12px;background:var(--glass);border-radius:12px">
-            <div class="font-heading" style="font-size:20px;font-weight:800;color:var(--gold)" id="pWithd">0</div>
-            <div style="font-size:10px;color:var(--muted)">WITHDRAWN</div>
-          </div>
-        </div>
-      </div>
-      <div class="glass-card p-5 mb-4">
-        <div class="list-item"><span style="color:var(--muted);font-size:13px;flex:1">Multiplier</span><span class="font-heading font-bold" style="color:var(--accent)" id="pMult">1x</span></div>
-        <div class="list-item"><span style="color:var(--muted);font-size:13px;flex:1">Joined</span><span style="font-size:13px" id="pJoined">-</span></div>
-      </div>
-      <div class="glass-card p-5">
-        <h3 class="font-heading font-bold mb-3">Activity Log</h3>
-        <div id="pActivity"><p style="color:var(--muted);font-size:13px;text-align:center;padding:16px">No activity yet</p></div>
-      </div>
-    </div>
-
-  </div><!-- end user-content -->
-
-  <!-- Bottom Nav -->
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-p="dash" onclick="go('dash')"><i class="fas fa-home"></i>Home</button>
-    <button class="nav-item" data-p="videos" onclick="go('videos')"><i class="fas fa-play"></i>Videos</button>
-    <button class="nav-item" data-p="tasks" onclick="go('tasks')"><i class="fas fa-tasks"></i>Tasks</button>
-    <button class="nav-item" data-p="withdraw" onclick="go('withdraw')"><i class="fas fa-wallet"></i>Withdraw</button>
-    <button class="nav-item" data-p="profile" onclick="go('profile')"><i class="fas fa-user"></i>Profile</button>
-  </nav>
-</div><!-- end userPanel -->
-
-<!-- ══════════════════════════════════════
-     ADMIN PANEL
-══════════════════════════════════════ -->
-<div id="adminPanel">
-  <div class="sidebar-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
-
-  <!-- Sidebar -->
-  <aside class="admin-sidebar" id="aSide">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;padding:0 4px">
-      <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#ef476f,#ff6b6b);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="fas fa-shield-alt" style="color:#fff"></i>
-      </div>
-      <div>
-        <h2 class="font-heading font-bold">Admin</h2>
-        <p style="font-size:11px;color:var(--muted)">TengaEarn Control</p>
-      </div>
-    </div>
-    <button class="admin-nav-item active" data-a="overview" onclick="aGo('overview')"><i class="fas fa-chart-pie"></i>Overview</button>
-    <button class="admin-nav-item" data-a="users" onclick="aGo('users')"><i class="fas fa-users"></i>Users</button>
-    <button class="admin-nav-item" data-a="videos" onclick="aGo('videos')"><i class="fas fa-video"></i>Videos</button>
-    <button class="admin-nav-item" data-a="ads" onclick="aGo('ads')"><i class="fas fa-ad"></i>Ads</button>
-    <button class="admin-nav-item" data-a="tasks" onclick="aGo('tasks')"><i class="fas fa-tasks"></i>Tasks</button>
-    <button class="admin-nav-item" data-a="withdrawals" onclick="aGo('withdrawals')"><i class="fas fa-money-bill-wave"></i>Withdrawals</button>
-    <button class="admin-nav-item" data-a="adreq" onclick="aGo('adreq')"><i class="fas fa-rocket"></i>Ad Requests</button>
-    <button class="admin-nav-item" data-a="subs" onclick="aGo('subs')"><i class="fas fa-crown"></i>Subscriptions</button>
-    <button class="admin-nav-item" data-a="savings" onclick="aGo('savings')"><i class="fas fa-piggy-bank"></i>Savings</button>
-    <button class="admin-nav-item" data-a="notifs" onclick="aGo('notifs')"><i class="fas fa-bell"></i>Notifications</button>
-    <div class="divider"></div>
-    <button class="admin-nav-item" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i>Logout</button>
-  </aside>
-
-  <!-- Main Content -->
-  <div class="admin-main">
-    <!-- Admin Header -->
-    <header style="position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--border);backdrop-filter:blur(20px)">
-      <button class="lg:hidden" onclick="openSidebar()" style="width:36px;height:36px;border-radius:10px;background:var(--glass);border:1px solid var(--border);cursor:pointer;display:none;align-items:center;justify-content:center" id="sideBtn">
-        <i class="fas fa-bars" style="color:var(--muted)"></i>
-      </button>
-      <h2 class="font-heading font-bold" id="aTitle">Overview</h2>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-        <button onclick="toggleDark()" style="width:36px;height:36px;border-radius:10px;background:var(--glass);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center">
-          <i class="fas fa-moon text-sm" style="color:var(--muted)"></i>
-        </button>
-        <div class="coin-icon text-sm"><i class="fas fa-coins"></i><span id="aTotCoins">0</span></div>
-      </div>
     </header>
 
-    <div style="padding:16px;max-width:860px">
+    <!-- Main Container -->
+    <main class="container">
+        <!-- User Profile Section (Hidden by default) -->
+        <section id="profileSection" class="section hidden">
+            <div class="section-header">
+                <h2>👤 My Profile</h2>
+            </div>
+            <div class="profile-card">
+                <div class="profile-info">
+                    <p><strong>Name:</strong> <span id="userName">Loading...</span></p>
+                    <p><strong>Telegram ID:</strong> <span id="userTgId">Loading...</span></p>
+                    <p><strong>Total Earned:</strong> <span id="totalEarned">₹0</span></p>
+                    <p><strong>Member Since:</strong> <span id="memberSince">Loading...</span></p>
+                </div>
+                <button id="logoutBtn" class="btn btn-danger">Logout</button>
+            </div>
+        </section>
 
-      <!-- OVERVIEW -->
-      <div id="aOverview" class="aPage">
-        <div class="section-grid mb-4" style="grid-template-columns:repeat(2,1fr)">
-          <div class="glass-card stat-card"><i class="fas fa-users" style="color:#818cf8"></i><div class="value" id="aTotUsers">0</div><div class="label">Users</div></div>
-          <div class="glass-card stat-card"><i class="fas fa-coins" style="color:#ffd166"></i><div class="value" id="aTotEarned">0</div><div class="label">Total Earned</div></div>
-          <div class="glass-card stat-card"><i class="fas fa-money-bill-wave" style="color:#06d6a0"></i><div class="value" id="aPendW">0</div><div class="label">Pending Withdrawals</div></div>
-          <div class="glass-card stat-card"><i class="fas fa-rocket" style="color:#ef476f"></i><div class="value" id="aPendAd">0</div><div class="label">Pending Ad Req</div></div>
+        <!-- Login Section -->
+        <section id="loginSection" class="section">
+            <div class="login-card">
+                <h2>Welcome to EarnHub</h2>
+                <p>Login to start earning!</p>
+                
+                <button id="telegramLoginBtn" class="btn btn-primary btn-large">
+                    🚀 Login with Telegram
+                </button>
+                
+                <button id="googleLoginBtn" class="btn btn-secondary btn-large">
+                    🔐 Login with Google
+                </button>
+
+                <div class="login-info">
+                    <p>✓ Easy registration</p>
+                    <p>✓ Instant payout</p>
+                    <p>✓ Refer & Earn</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard (Shown after login) -->
+        <div id="dashboard" class="hidden">
+            <!-- Balance Card -->
+            <div class="balance-card">
+                <div class="balance-info">
+                    <p class="balance-label">Current Balance</p>
+                    <h1 id="dashBalance" class="balance-amount">₹0.00</h1>
+                </div>
+                <button id="withdrawBtn" class="btn btn-gradient">Withdraw</button>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-icon">🎬</span>
+                    <p class="stat-label">Videos Watched</p>
+                    <p class="stat-value" id="videosWatched">0</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">📢</span>
+                    <p class="stat-label">Ads Clicked</p>
+                    <p class="stat-value" id="adsClicked">0</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">📱</span>
+                    <p class="stat-label">Apps Installed</p>
+                    <p class="stat-value" id="appsInstalled">0</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">👥</span>
+                    <p class="stat-label">Referrals</p>
+                    <p class="stat-value" id="referralCount">0</p>
+                </div>
+            </div>
+
+            <!-- Earning Sections -->
+            
+            <!-- Videos Section -->
+            <section class="earn-section">
+                <div class="section-header">
+                    <h2>🎬 Watch Videos</h2>
+                    <span class="earn-badge">+5 pts/video</span>
+                </div>
+                <div id="videosContainer" class="tasks-grid">
+                    <div class="loading">Loading videos...</div>
+                </div>
+            </section>
+
+            <!-- Ads Section -->
+            <section class="earn-section">
+                <div class="section-header">
+                    <h2>📢 Click Ads</h2>
+                    <span class="earn-badge">+3 pts/click</span>
+                </div>
+                <div id="adsContainer" class="tasks-grid">
+                    <div class="loading">Loading ads...</div>
+                </div>
+            </section>
+
+            <!-- Apps Section -->
+            <section class="earn-section">
+                <div class="section-header">
+                    <h2>📱 Install Apps</h2>
+                    <span class="earn-badge">+20 pts/install</span>
+                </div>
+                <div id="appsContainer" class="tasks-grid">
+                    <div class="loading">Loading apps...</div>
+                </div>
+            </section>
+
+            <!-- Channels Section -->
+            <section class="earn-section">
+                <div class="section-header">
+                    <h2>📲 Join Channels</h2>
+                    <span class="earn-badge">+10 pts/join</span>
+                </div>
+                <div id="channelsContainer" class="tasks-grid">
+                    <div class="loading">Loading channels...</div>
+                </div>
+            </section>
+
+            <!-- Referral Section -->
+            <section class="earn-section">
+                <div class="section-header">
+                    <h2>👥 Referral Program</h2>
+                    <span class="earn-badge">+20 pts/referral</span>
+                </div>
+                <div class="referral-card">
+                    <p class="referral-label">Your Referral Link:</p>
+                    <div class="referral-link-container">
+                        <input type="text" id="referralLink" class="referral-input" readonly>
+                        <button id="copyReferralBtn" class="btn btn-sm">Copy</button>
+                    </div>
+                    <button id="shareReferralBtn" class="btn btn-gradient btn-block">
+                        📤 Share Referral Link
+                    </button>
+                    <p class="referral-info">
+                        Earn ₹20 for each friend who joins through your link!
+                    </p>
+                </div>
+            </section>
         </div>
-        <div class="glass-card p-5">
-          <h3 class="font-heading font-bold mb-3">Quick Navigate</h3>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-            <button class="btn-secondary" onclick="aGo('users')" style="padding:10px;font-size:12px"><i class="fas fa-users mr-1"></i>Users</button>
-            <button class="btn-secondary" onclick="aGo('withdrawals')" style="padding:10px;font-size:12px"><i class="fas fa-money-bill mr-1"></i>Withdrawals</button>
-            <button class="btn-secondary" onclick="aGo('subs')" style="padding:10px;font-size:12px"><i class="fas fa-crown mr-1"></i>Subs</button>
-          </div>
+    </main>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>Watch Video</h2>
+            <div id="videoPlayer" style="width: 100%; background: #000; border-radius: 8px; margin: 15px 0; min-height: 300px; display: flex; align-items: center; justify-content: center;">
+                <span style="color: #ccc;">Video loading...</span>
+            </div>
+            <div class="video-info">
+                <p id="videoReward">Reward: <strong>5 points</strong></p>
+                <p id="watchProgress">Watch time: <span id="watchTime">0</span>/10 seconds</p>
+            </div>
+            <button id="closeVideoBtn" class="btn btn-primary btn-block">Close</button>
         </div>
-      </div>
+    </div>
 
-      <!-- USERS -->
-      <div id="aUsers" class="aPage" style="display:none">
-        <div class="glass-card p-4 mb-4">
-          <input type="text" id="uSearch" placeholder="Search by name or email..." oninput="filterU()">
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>Withdraw Money</h2>
+            <form id="withdrawForm">
+                <div class="form-group">
+                    <label>Select Method:</label>
+                    <div class="method-buttons">
+                        <button type="button" class="method-btn" data-method="bkash">bKash</button>
+                        <button type="button" class="method-btn" data-method="nagad">Nagad</button>
+                        <button type="button" class="method-btn" data-method="payoneer">Payoneer</button>
+                    </div>
+                    <input type="hidden" id="withdrawMethod" name="method" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Account/Phone Number:</label>
+                    <input type="text" id="withdrawAccount" placeholder="Enter your account number" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Amount to Withdraw:</label>
+                    <input type="number" id="withdrawAmount" placeholder="Minimum ₹100" min="100" step="10" required>
+                </div>
+
+                <p class="balance-info">Available Balance: <strong id="availableBalance">₹0</strong></p>
+
+                <button type="submit" class="btn btn-primary btn-block">Submit Request</button>
+            </form>
         </div>
-        <div id="aUserList" class="space-y-2"></div>
-      </div>
-
-      <!-- VIDEOS -->
-      <div id="aVideos" class="aPage" style="display:none">
-        <div class="glass-card p-5 mb-4">
-          <h3 class="font-heading font-bold mb-3">Add Video</h3>
-          <div class="space-y-3">
-            <input type="text" id="avTitle" placeholder="Video Title">
-            <input type="url" id="avUrl" placeholder="YouTube URL">
-            <input type="number" id="avReward" placeholder="Reward" value="5">
-            <button class="btn-primary w-full" onclick="addVideo()"><i class="fas fa-plus mr-2"></i>Add Video</button>
-          </div>
-        </div>
-        <h3 class="font-heading font-bold mb-3">All Videos</h3>
-        <div id="aVidList" class="space-y-2"></div>
-      </div>
-
-      <!-- ADS -->
-      <div id="aAds" class="aPage" style="display:none">
-        <div class="glass-card p-5 mb-4">
-          <h3 class="font-heading font-bold mb-3">Add Ad</h3>
-          <div class="space-y-3">
-            <input type="text" id="aaTitle" placeholder="Ad Title">
-            <input type="url" id="aaLink" placeholder="Destination URL">
-            <input type="number" id="aaReward" placeholder="Reward" value="3">
-            <button class="btn-primary w-full" onclick="addAd()"><i class="fas fa-plus mr-2"></i>Add Ad</button>
-          </div>
-        </div>
-        <h3 class="font-heading font-bold mb-3">All Ads</h3>
-        <div id="aAdList" class="space-y-2"></div>
-      </div>
-
-      <!-- TASKS -->
-      <div id="aTasks" class="aPage" style="display:none">
-        <div class="glass-card p-5 mb-4">
-          <h3 class="font-heading font-bold mb-3">Create Task</h3>
-          <div class="space-y-3">
-            <input type="text" id="atTitle" placeholder="Task Title">
-            <textarea id="atDesc" rows="2" placeholder="Description"></textarea>
-            <input type="number" id="atReward" placeholder="Reward" value="20">
-            <button class="btn-primary w-full" onclick="addTask()"><i class="fas fa-plus mr-2"></i>Create Task</button>
-          </div>
-        </div>
-        <div id="aTaskSubs"></div>
-      </div>
-
-      <!-- WITHDRAWALS -->
-      <div id="aWithdrawals" class="aPage" style="display:none">
-        <div id="aWList" class="space-y-2"></div>
-      </div>
-
-      <!-- AD REQUESTS -->
-      <div id="aAdreq" class="aPage" style="display:none">
-        <div id="aAdReqList" class="space-y-2"></div>
-      </div>
-
-      <!-- SUBSCRIPTIONS -->
-      <div id="aSubs" class="aPage" style="display:none">
-        <div id="aSubList" class="space-y-2"></div>
-      </div>
-
-      <!-- SAVINGS -->
-      <div id="aSavings" class="aPage" style="display:none">
-        <div id="aSavList" class="space-y-2"></div>
-      </div>
-
-      <!-- NOTIFICATIONS -->
-      <div id="aNotifs" class="aPage" style="display:none">
-        <div class="glass-card p-5 mb-4">
-          <h3 class="font-heading font-bold mb-3">Send Notification</h3>
-          <div class="space-y-3">
-            <input type="text" id="nTitle" placeholder="Title">
-            <textarea id="nBody" rows="3" placeholder="Body"></textarea>
-            <select id="nTarget">
-              <option value="all">All Users</option>
-              <option value="premium">Premium Only</option>
-            </select>
-            <button class="btn-primary w-full" onclick="sendNotif()"><i class="fas fa-bell mr-2"></i>Send Notification</button>
-          </div>
-        </div>
-        <h3 class="font-heading font-bold mb-3">Notification History</h3>
-        <div id="nHist" class="space-y-2"></div>
-      </div>
-
-    </div><!-- end admin content -->
-  </div><!-- end admin-main -->
-</div><!-- end adminPanel -->
-
-<!-- ══════════════════════════════════════
-     MODALS
-══════════════════════════════════════ -->
-<!-- Timer Modal -->
-<div class="modal-overlay" id="timerModal">
-  <div class="modal-content" style="text-align:center;padding:32px">
-    <h3 class="font-heading font-bold text-lg mb-2" id="tmTitle">Timer</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:20px" id="tmSub">Please wait...</p>
-    <div class="timer-ring" style="margin:0 auto 20px">
-      <svg width="80" height="80">
-        <circle class="track" cx="40" cy="40" r="36"/>
-        <circle class="progress" id="tmCircle" cx="40" cy="40" r="36" stroke-dasharray="226" stroke-dashoffset="0"/>
-      </svg>
-      <div class="time-text" id="tmText">0</div>
     </div>
-    <p style="font-size:13px;font-weight:600" id="tmStatus" style="color:var(--muted)">Running...</p>
-  </div>
-</div>
 
-<!-- Task Modal -->
-<div class="modal-overlay" id="taskModal">
-  <div class="modal-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <h3 class="font-heading font-bold" id="tmTaskTitle">Submit Task</h3>
-      <button onclick="closeM('taskModal')" style="width:32px;height:32px;border-radius:8px;background:var(--glass);border:1px solid var(--border);cursor:pointer;color:var(--muted)"><i class="fas fa-times"></i></button>
-    </div>
-    <input type="hidden" id="tmTaskId">
-    <div class="file-upload mb-3" onclick="document.getElementById('taskFile').click()">
-      <i class="fas fa-camera"></i>
-      <p style="font-size:13px;font-weight:600">Upload Proof Screenshot</p>
-      <input type="file" id="taskFile" accept="image/*" style="display:none">
-    </div>
-    <textarea id="taskNote" rows="2" placeholder="Note (optional)" style="margin-bottom:12px"></textarea>
-    <button class="btn-primary w-full" onclick="submitTaskProof()"><i class="fas fa-check mr-2"></i>Submit Proof</button>
-  </div>
-</div>
+    <!-- Notification Toast -->
+    <div id="notification" class="notification hidden"></div>
 
-<!-- Subscription Modal -->
-<div class="modal-overlay" id="subModal">
-  <div class="modal-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <h3 class="font-heading font-bold">Payment Verification</h3>
-      <button onclick="closeM('subModal')" style="width:32px;height:32px;border-radius:8px;background:var(--glass);border:1px solid var(--border);cursor:pointer;color:var(--muted)"><i class="fas fa-times"></i></button>
-    </div>
-    <input type="hidden" id="subPlan">
-    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;color:var(--muted)">
-      <p style="margin-bottom:6px"><i class="fas fa-mobile-alt mr-2" style="color:var(--brand2)"></i>bKash: <strong style="color:var(--text)">01806258800</strong></p>
-      <p><i class="fas fa-envelope mr-2" style="color:var(--brand2)"></i>Payoneer: <strong style="color:var(--text)">laxmimoyc14@gmail.com</strong></p>
-    </div>
-    <div class="file-upload mb-3" onclick="document.getElementById('subFile').click()">
-      <i class="fas fa-cloud-upload-alt"></i>
-      <p style="font-size:13px;font-weight:600">Upload Payment Screenshot</p>
-      <input type="file" id="subFile" accept="image/*" style="display:none">
-    </div>
-    <button class="btn-primary w-full" onclick="submitSub()"><i class="fas fa-paper-plane mr-2"></i>Submit</button>
-  </div>
-</div>
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-page="dashboard">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-btn" data-page="profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Profile</span>
+        </button>
+    </nav>
 
-<!-- Upgrade Modal -->
-<div class="modal-overlay" id="upgModal">
-  <div class="modal-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <h3 class="font-heading font-bold">Upgrade Payment</h3>
-      <button onclick="closeM('upgModal')" style="width:32px;height:32px;border-radius:8px;background:var(--glass);border:1px solid var(--border);cursor:pointer;color:var(--muted)"><i class="fas fa-times"></i></button>
-    </div>
-    <input type="hidden" id="upgLvl">
-    <div style="background:var(--card2);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;color:var(--muted)">
-      <p style="margin-bottom:6px"><i class="fas fa-mobile-alt mr-2" style="color:var(--brand2)"></i>bKash: <strong style="color:var(--text)">01806258800</strong></p>
-      <p><i class="fas fa-envelope mr-2" style="color:var(--brand2)"></i>Payoneer: <strong style="color:var(--text)">laxmimoyc14@gmail.com</strong></p>
-    </div>
-    <div class="file-upload mb-3" onclick="document.getElementById('upgFile').click()">
-      <i class="fas fa-cloud-upload-alt"></i>
-      <p style="font-size:13px;font-weight:600">Upload Payment Screenshot</p>
-      <input type="file" id="upgFile" accept="image/*" style="display:none">
-    </div>
-    <button class="btn-primary w-full" onclick="submitUpg()"><i class="fas fa-arrow-up mr-2"></i>Submit</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     MOBILE SIDEBAR BUTTON SHOW
-══════════════════════════════════════ -->
-<style>
-@media(max-width:768px){
-  #sideBtn { display:flex !important; }
-}
-.space-y-2 > * + * { margin-top:8px; }
-.space-y-3 > * + * { margin-top:12px; }
-.w-full { width:100%; }
-</style>
-
-<!-- ══════════════════════════════════════
-     FIREBASE + APP LOGIC
-══════════════════════════════════════ -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
-const fbCfg = {
-  apiKey: "AIzaSyA_IC27cAByiHB_5SSc-JKAeTVjbmhc498",
-  authDomain: "tenga-earn.firebaseapp.com",
-  databaseURL: "https://tenga-earn-default-rtdb.firebaseio.com",
-  projectId: "tenga-earn",
-  storageBucket: "tenga-earn.firebasestorage.app",
-  messagingSenderId: "908716905819",
-  appId: "1:908716905819:web:3603c23e55f385ca7a767e",
-  measurementId: "G-FPR3H8ZYRJ"
-};
-
-const fbApp = initializeApp(fbCfg);
-const auth = getAuth(fbApp);
-const db = getFirestore(fbApp);
-const storage = getStorage(fbApp);
-
-const ADMIN_EMAIL = 'laxmimoyc14@gmail.com';
-let S = { uid: null, email: null, isAdmin: false, data: null, watched: [], viewed: [], taskDone: [], timer: null };
-
-// ── HELPERS ──
-function gid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
-function fdt(d) { if (!d) return '-'; const x = d.toDate ? d.toDate() : new Date(d); return x.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
-function toast(msg, type='info') { const c = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = msg; c.appendChild(t); setTimeout(() => t.remove(), 3000); }
-window.toast = toast;
-async function upFile(file, path) { const r = ref(storage, path); await uploadBytes(r, file); return await getDownloadURL(r); }
-function closeM(id) { document.getElementById(id).classList.remove('show'); }
-window.closeM = closeM;
-document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
-
-// ── AUTH TAB ──
-function switchAuthTab(tab) {
-  document.getElementById('tabUser').classList.toggle('active', tab === 'user');
-  document.getElementById('tabAdmin').classList.toggle('active', tab === 'admin');
-  document.getElementById('userLogin').style.display = tab === 'user' ? 'block' : 'none';
-  document.getElementById('userReg').style.display = 'none';
-  document.getElementById('adminLogin').style.display = tab === 'admin' ? 'block' : 'none';
-}
-window.switchAuthTab = switchAuthTab;
-function showUserReg() { document.getElementById('userLogin').style.display = 'none'; document.getElementById('userReg').style.display = 'block'; }
-window.showUserReg = showUserReg;
-function showUserLogin() { document.getElementById('userReg').style.display = 'none'; document.getElementById('userLogin').style.display = 'block'; }
-window.showUserLogin = showUserLogin;
-
-// ── USER LOGIN ──
-async function userLogin() {
-  const email = document.getElementById('uLoginEmail').value.trim();
-  const pass = document.getElementById('uLoginPass').value;
-  if (!email || !pass) return toast('Fill in all fields', 'error');
-  if (email === ADMIN_EMAIL) return toast('Use Admin tab for this email', 'error');
-  const btn = document.getElementById('uLoginBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  try {
-    const cred = await signInWithEmailAndPassword(auth, email, pass);
-    S.uid = cred.user.uid; S.email = cred.user.email; S.isAdmin = false;
-    await ensureUserDoc(S.uid, cred.user.email);
-    enterUserPanel();
-  } catch (e) { toast(e.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, ''), 'error'); }
-  btn.disabled = false; btn.innerHTML = '<i class="fas fa-arrow-right mr-2"></i>Sign In';
-}
-window.userLogin = userLogin;
-
-// ── USER REGISTER ──
-async function userRegister() {
-  const name = document.getElementById('uRegName').value.trim();
-  const email = document.getElementById('uRegEmail').value.trim();
-  const pass = document.getElementById('uRegPass').value;
-  const refCode = document.getElementById('uRegRef').value.trim();
-  if (!name || !email || !pass) return toast('Fill in all fields', 'error');
-  if (pass.length < 6) return toast('Password min 6 characters', 'error');
-  if (email === ADMIN_EMAIL) return toast('This email is reserved', 'error');
-  const btn = document.getElementById('uRegBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    S.uid = cred.user.uid; S.email = cred.user.email; S.isAdmin = false;
-    const myRefCode = name.toUpperCase().slice(0, 4) + Math.random().toString(36).substr(2, 4).toUpperCase();
-    await setDoc(doc(db, 'users', cred.user.uid), {
-      name, email, balance: 0, totalEarned: 0, withdrawn: 0,
-      todayEarned: 0, weekEarned: 0, videosWatched: 0, adsViewed: 0, tasksCompleted: 0,
-      referrals: 0, referralCode: myRefCode, multiplier: 1, subscription: 'free', level: 'Free',
-      kycStatus: 'pending', blocked: false, createdAt: serverTimestamp(), activityLog: []
-    });
-    if (refCode) {
-      const q = query(collection(db, 'users'), where('referralCode', '==', refCode.toUpperCase()));
-      const snap = await getDocs(q);
-      for (const d of snap.docs) { await updateDoc(d.ref, { referrals: increment(1), balance: increment(50) }); }
-    }
-    enterUserPanel();
-    toast('Account created!', 'success');
-  } catch (e) { toast(e.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, ''), 'error'); }
-  btn.disabled = false; btn.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Create Account';
-}
-window.userRegister = userRegister;
-
-// ── ADMIN LOGIN ──
-async function adminLogin() {
-  const pass = document.getElementById('aLoginPass').value;
-  if (!pass) return toast('Enter admin password', 'error');
-  const btn = document.getElementById('aLoginBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  try {
-    const cred = await signInWithEmailAndPassword(auth, ADMIN_EMAIL, pass);
-    S.uid = cred.user.uid; S.email = cred.user.email; S.isAdmin = true;
-    enterAdminPanel();
-    toast('Admin login successful', 'success');
-  } catch (e) { toast(e.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, ''), 'error'); }
-  btn.disabled = false; btn.innerHTML = '<i class="fas fa-shield-alt mr-2"></i>Admin Login';
-}
-window.adminLogin = adminLogin;
-
-// ── ENSURE USER DOC ──
-async function ensureUserDoc(uid, email) {
-  const d = await getDoc(doc(db, 'users', uid));
-  if (!d.exists()) {
-    const refCode = email.slice(0, 4).toUpperCase() + gid().toUpperCase().slice(0, 4);
-    await setDoc(doc(db, 'users', uid), {
-      name: email.split('@')[0], email, balance: 0, totalEarned: 0, withdrawn: 0,
-      todayEarned: 0, weekEarned: 0, videosWatched: 0, adsViewed: 0, tasksCompleted: 0,
-      referrals: 0, referralCode: refCode, multiplier: 1, subscription: 'free', level: 'Free',
-      kycStatus: 'pending', blocked: false, createdAt: serverTimestamp(), activityLog: []
-    });
-  }
-}
-
-// ── AUTH STATE ──
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    S.uid = user.uid; S.email = user.email;
-    if (user.email === ADMIN_EMAIL) {
-      S.isAdmin = true; enterAdminPanel();
-    } else {
-      S.isAdmin = false;
-      await ensureUserDoc(user.uid, user.email);
-      enterUserPanel();
-    }
-  }
-});
-
-// ── LOGOUT ──
-async function doLogout() {
-  await signOut(auth);
-  S = { uid: null, email: null, isAdmin: false, data: null, watched: [], viewed: [], taskDone: [], timer: null };
-  document.getElementById('authScreen').style.display = 'flex';
-  document.getElementById('userPanel').style.display = 'none';
-  document.getElementById('adminPanel').style.display = 'none';
-  toast('Logged out', 'info');
-}
-window.doLogout = doLogout;
-
-// ── LOAD USER ──
-async function loadUser() {
-  const snap = await getDoc(doc(db, 'users', S.uid));
-  S.data = snap.exists() ? snap.data() : null;
-  if (!S.data) return;
-  if (S.data.blocked) { await doLogout(); toast('Account blocked', 'error'); return; }
-  refreshUI();
-  document.getElementById('refCode').value = S.data.referralCode || '';
-}
-
-function refreshUI() {
-  const u = S.data; if (!u) return;
-  const b = u.balance || 0;
-  document.getElementById('hdrBal').textContent = b;
-  document.getElementById('dBal').textContent = b;
-  document.getElementById('dToday').textContent = u.todayEarned || 0;
-  document.getElementById('dWeek').textContent = u.weekEarned || 0;
-  document.getElementById('dPlan').textContent = (u.subscription || 'free');
-  document.getElementById('sVid').textContent = u.videosWatched || 0;
-  document.getElementById('sAd').textContent = u.adsViewed || 0;
-  document.getElementById('sTask').textContent = u.tasksCompleted || 0;
-  document.getElementById('sRef').textContent = u.referrals || 0;
-  document.getElementById('wBal').textContent = b;
-  document.getElementById('pAv').textContent = (u.name || 'U').charAt(0).toUpperCase();
-  document.getElementById('pName').textContent = u.name || 'User';
-  document.getElementById('pEmail').textContent = u.email || '';
-  document.getElementById('pPlan').textContent = ((u.subscription || 'free') + ' plan').toUpperCase();
-  document.getElementById('pKyc').textContent = (u.kycStatus || 'pending').toUpperCase();
-  document.getElementById('pKyc').className = 'badge ' + (u.kycStatus === 'verified' ? 'badge-success' : 'badge-pending');
-  document.getElementById('pEarned').textContent = u.totalEarned || 0;
-  document.getElementById('pWithd').textContent = u.withdrawn || 0;
-  document.getElementById('pJoined').textContent = fdt(u.createdAt);
-  document.getElementById('pMult').textContent = (u.multiplier || 1) + 'x';
-  document.getElementById('multTxt').textContent = (u.multiplier || 1) + 'x';
-  document.getElementById('multBar').style.width = Math.min(100, (u.multiplier || 1) * 15) + '%';
-  const logEl = document.getElementById('pActivity');
-  const logs = u.activityLog || [];
-  if (logs.length) {
-    logEl.innerHTML = logs.slice(0, 10).map(a => `<div class="list-item"><div style="width:32px;height:32px;border-radius:8px;background:rgba(6,214,160,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-plus" style="font-size:11px;color:#06d6a0"></i></div><div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:500">${a.action}</p><p style="font-size:11px;color:var(--muted)">${fdt(a.time)}</p></div><span class="coin-icon" style="font-size:12px">+${a.amount}</span></div>`).join('');
-  }
-  const kycOk = u.kycStatus === 'verified';
-  document.getElementById('kycBox').style.display = kycOk ? 'none' : 'block';
-  document.getElementById('savBox').style.display = kycOk ? 'block' : 'none';
-}
-
-// ── ADD REWARD ──
-async function addReward(amount, action) {
-  const mult = S.data?.multiplier || 1;
-  const final = Math.round(amount * mult);
-  await updateDoc(doc(db, 'users', S.uid), {
-    balance: increment(final), totalEarned: increment(final),
-    todayEarned: increment(final), weekEarned: increment(final)
-  });
-  const u = await getDoc(doc(db, 'users', S.uid));
-  const logs = u.data()?.activityLog || [];
-  logs.unshift({ action, amount: final, time: new Date() });
-  if (logs.length > 50) logs.length = 50;
-  await updateDoc(doc(db, 'users', S.uid), { activityLog: logs });
-  S.data = { ...S.data, balance: (S.data.balance || 0) + final, totalEarned: (S.data.totalEarned || 0) + final };
-  refreshUI();
-  toast(`+${final} TengaCoin earned!`, 'success');
-}
-
-// ── NAVIGATION ──
-function go(p) {
-  const map = { dash:'pgDash', videos:'pgVideos', ads:'pgAds', tasks:'pgTasks', savings:'pgSavings', subscription:'pgSubscription', advertising:'pgAdvertising', upgrade:'pgUpgrade', withdraw:'pgWithdraw', profile:'pgProfile' };
-  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-  const el = document.getElementById(map[p]); if (el) { el.classList.add('active'); el.scrollTop = 0; }
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.p === p));
-  if (p === 'profile') refreshUI();
-  if (p === 'withdraw') document.getElementById('wBal').textContent = S.data?.balance || 0;
-  if (p === 'videos') loadVideos();
-  if (p === 'ads') loadAds();
-  if (p === 'tasks') loadTasks();
-  if (p === 'savings') loadSavings();
-  if (p === 'withdraw') loadWithdrawHist();
-  if (p === 'advertising') loadMyAds();
-  if (p === 'upgrade') renderUpgrades();
-}
-window.go = go;
-
-// ── ENTER PANELS ──
-function enterUserPanel() {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('adminPanel').style.display = 'none';
-  document.getElementById('userPanel').style.display = 'flex';
-  loadUser(); loadVideos(); loadAds(); loadTasks(); loadSavings(); loadWithdrawHist(); loadMyAds(); renderUpgrades();
-}
-function enterAdminPanel() {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('userPanel').style.display = 'none';
-  document.getElementById('adminPanel').style.display = 'block';
-  loadAdminOverview(); loadAdminUsers();
-}
-
-// ── TIMER ──
-function startTimer(sec, title, sub, onDone) {
-  const modal = document.getElementById('timerModal');
-  const circle = document.getElementById('tmCircle');
-  const text = document.getElementById('tmText');
-  const status = document.getElementById('tmStatus');
-  document.getElementById('tmTitle').textContent = title;
-  document.getElementById('tmSub').textContent = sub;
-  modal.classList.add('show');
-  let rem = sec; const circ = 226;
-  circle.style.strokeDashoffset = '0'; text.textContent = rem; status.textContent = 'Running...';
-  if (S.timer) clearInterval(S.timer);
-  S.timer = setInterval(() => {
-    rem--; text.textContent = rem;
-    circle.style.strokeDashoffset = circ * ((sec - rem) / sec);
-    if (rem <= 0) {
-      clearInterval(S.timer); S.timer = null;
-      status.textContent = 'Reward claimed!'; status.style.color = '#06d6a0';
-      setTimeout(() => { modal.classList.remove('show'); onDone(); }, 800);
-    }
-  }, 1000);
-}
-
-// ── VIDEOS ──
-async function loadVideos() {
-  const snap = await getDocs(query(collection(db, 'videos'), where('active', '==', true)));
-  const vids = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const c = document.getElementById('vidList');
-  if (!vids.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-video" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No videos available</p></div>'; return; }
-  c.innerHTML = vids.map(v => {
-    const done = S.watched.includes(v.id);
-    return `<div class="glass-card p-4"><div style="display:flex;align-items:flex-start;gap:12px"><div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,rgba(239,71,111,.2),rgba(239,71,111,.1));display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-play" style="color:#ef476f"></i></div><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:14px">${v.title}</p><p style="font-size:12px;margin-top:4px;color:var(--muted)">Reward: <span class="coin-icon"><i class="fas fa-coins"></i>${v.reward || 5}</span></p></div></div><button class="btn-primary w-full" style="margin-top:12px;font-size:13px" ${done ? 'disabled' : ''} onclick="watchVid('${v.id}','${v.url}',${v.reward || 5})">${done ? '<i class="fas fa-check mr-2"></i>Watched' : '<i class="fas fa-external-link-alt mr-2"></i>Watch & Earn'}</button></div>`;
-  }).join('');
-}
-function watchVid(id, url, reward) {
-  if (S.watched.includes(id)) return;
-  window.open(url, '_blank');
-  startTimer(30, 'Watching Video', 'Stay on this page to earn', async () => {
-    S.watched.push(id);
-    await updateDoc(doc(db, 'users', S.uid), { videosWatched: increment(1) });
-    await addReward(reward, 'Watched video');
-    loadVideos();
-  });
-}
-window.watchVid = watchVid;
-
-// ── ADS ──
-async function loadAds() {
-  const snap = await getDocs(query(collection(db, 'ads'), where('active', '==', true)));
-  const ads = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const c = document.getElementById('adList');
-  if (!ads.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-ad" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No ads available</p></div>'; return; }
-  c.innerHTML = ads.map(a => {
-    const done = S.viewed.includes(a.id);
-    return `<div class="glass-card p-4"><div style="display:flex;align-items:flex-start;gap:12px"><div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,rgba(6,214,160,.2),rgba(0,180,216,.1));display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-bullhorn" style="color:#06d6a0"></i></div><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:14px">${a.title}</p><p style="font-size:12px;margin-top:4px;color:var(--muted)">Reward: <span class="coin-icon"><i class="fas fa-coins"></i>${a.reward || 3}</span></p></div></div><button class="btn-primary w-full" style="margin-top:12px;font-size:13px" ${done ? 'disabled' : ''} onclick="viewAd('${a.id}','${a.link}',${a.reward || 3})">${done ? '<i class="fas fa-check mr-2"></i>Viewed' : '<i class="fas fa-external-link-alt mr-2"></i>View & Earn'}</button></div>`;
-  }).join('');
-}
-function viewAd(id, link, reward) {
-  if (S.viewed.includes(id)) return;
-  window.open(link, '_blank');
-  startTimer(15, 'Viewing Ad', 'Wait 15 seconds to earn', async () => {
-    S.viewed.push(id);
-    await updateDoc(doc(db, 'users', S.uid), { adsViewed: increment(1) });
-    await updateDoc(doc(db, 'ads', id), { clicks: increment(1) });
-    await addReward(reward, 'Viewed ad');
-    loadAds();
-  });
-}
-window.viewAd = viewAd;
-
-// ── TASKS ──
-async function loadTasks() {
-  const snap = await getDocs(query(collection(db, 'tasks'), where('active', '==', true)));
-  const tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const subSnap = await getDocs(query(collection(db, 'taskSubmissions'), where('userId', '==', S.uid)));
-  const submitted = subSnap.docs.map(d => d.data().taskId);
-  const c = document.getElementById('taskList');
-  if (!tasks.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-clipboard" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No tasks available</p></div>'; return; }
-  c.innerHTML = tasks.map(t => {
-    const done = submitted.includes(t.id);
-    return `<div class="glass-card p-4"><div style="display:flex;align-items:flex-start;gap:12px"><div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(255,150,50,.1));display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-clipboard-check" style="color:#ffd166"></i></div><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:14px">${t.title}</p>${t.description ? `<p style="font-size:12px;margin-top:4px;color:var(--muted)">${t.description}</p>` : ''}<p style="font-size:12px;margin-top:6px">Reward: <span class="coin-icon"><i class="fas fa-coins"></i>${t.reward || 20}</span></p></div></div><button class="btn-primary w-full" style="margin-top:12px;font-size:13px" ${done ? 'disabled' : ''} onclick="openTaskM('${t.id}','${(t.title || '').replace(/'/g,"\\'")}' )">${done ? '<i class="fas fa-check mr-2"></i>Submitted' : '<i class="fas fa-paper-plane mr-2"></i>Submit Proof'}</button></div>`;
-  }).join('');
-}
-function openTaskM(id, title) {
-  document.getElementById('tmTaskId').value = id;
-  document.getElementById('tmTaskTitle').textContent = title;
-  document.getElementById('taskModal').classList.add('show');
-}
-window.openTaskM = openTaskM;
-async function submitTaskProof() {
-  const taskId = document.getElementById('tmTaskId').value;
-  const file = document.getElementById('taskFile').files[0];
-  if (!file) return toast('Upload proof image', 'error');
-  let url; try { url = await upFile(file, `tasks/${S.uid}/${gid()}`); } catch (e) { return toast('Upload failed', 'error'); }
-  await addDoc(collection(db, 'taskSubmissions'), {
-    taskId, userId: S.uid, userName: S.data?.name || 'User',
-    proofUrl: url, note: document.getElementById('taskNote').value,
-    status: 'pending', createdAt: serverTimestamp()
-  });
-  closeM('taskModal');
-  document.getElementById('taskFile').value = ''; document.getElementById('taskNote').value = '';
-  loadTasks(); toast('Proof submitted!', 'info');
-}
-window.submitTaskProof = submitTaskProof;
-
-// ── SAVINGS ──
-async function submitKYC() {
-  const name = document.getElementById('kycName').value.trim();
-  const nid = document.getElementById('kycNID').value.trim();
-  const addr = document.getElementById('kycAddr').value.trim();
-  const country = document.getElementById('kycCountry').value.trim();
-  if (!name || !nid || !addr || !country) return toast('Fill all KYC fields', 'error');
-  await updateDoc(doc(db, 'users', S.uid), { kycStatus: 'pending', kycData: { name, nid, address: addr, country } });
-  document.getElementById('kycBox').innerHTML = '<div style="text-align:center;padding:20px"><i class="fas fa-shield-alt" style="font-size:32px;margin-bottom:8px;color:#ffd166;display:block"></i><p style="font-weight:600">KYC Under Review</p><p style="font-size:12px;color:var(--muted);margin-top:4px">We\'ll notify you once verified</p></div>';
-  toast('KYC submitted!', 'info');
-}
-window.submitKYC = submitKYC;
-async function openSav() {
-  const amt = parseInt(document.getElementById('savAmt').value);
-  const dur = parseInt(document.getElementById('savDur').value);
-  if (!amt || amt < 50) return toast('Minimum 50 TC', 'error');
-  if (amt > (S.data?.balance || 0)) return toast('Insufficient balance', 'error');
-  const rates = { 30: 5, 60: 8, 90: 12, 180: 20 };
-  await updateDoc(doc(db, 'users', S.uid), { balance: increment(-amt) });
-  await addDoc(collection(db, 'savings'), { userId: S.uid, userName: S.data?.name, amount: amt, duration: dur, rate: rates[dur], startDate: serverTimestamp(), status: 'active' });
-  document.getElementById('savAmt').value = '';
-  S.data.balance -= amt; refreshUI(); loadSavings(); toast('Savings opened!', 'success');
-}
-window.openSav = openSav;
-async function loadSavings() {
-  if (S.data?.kycStatus !== 'verified') return;
-  const snap = await getDocs(query(collection(db, 'savings'), where('userId', '==', S.uid)));
-  const savs = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(s => s.status === 'active');
-  const c = document.getElementById('savList');
-  if (!savs.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-piggy-bank" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No active savings</p></div>'; return; }
-  c.innerHTML = savs.map(s => {
-    const start = s.startDate?.toDate?.() || new Date(s.startDate);
-    const daysPassed = Math.floor((Date.now() - start.getTime()) / 86400000);
-    const left = Math.max(0, s.duration - daysPassed);
-    const interest = Math.round(s.amount * s.rate / 100);
-    const pct = Math.min(100, (daysPassed / s.duration) * 100);
-    return `<div class="glass-card p-4"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span class="badge ${left > 0 ? 'badge-active' : 'badge-success'}">${left > 0 ? 'Active' : 'Matured'}</span><span style="font-size:12px;color:var(--muted)">${s.duration} days</span></div><p class="font-heading" style="font-size:22px;font-weight:800">${s.amount} TC</p><div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--muted)"><span>Interest: ${s.rate}% (+${interest})</span><span>${left} days left</span></div><div class="progress-bar" style="margin-top:10px"><div class="fill" style="width:${pct}%"></div></div>${left <= 0 ? `<button class="btn-accent w-full" style="margin-top:12px;border-radius:12px;font-size:13px;padding:10px" onclick="claimSav('${s.id}',${s.amount},${interest})"><i class="fas fa-hand-holding-usd mr-1"></i>Withdraw Savings</button>` : ''}</div>`;
-  }).join('');
-}
-async function claimSav(id, amt, interest) {
-  const total = amt + interest;
-  await updateDoc(doc(db, 'savings', id), { status: 'withdrawn' });
-  await updateDoc(doc(db, 'users', S.uid), { balance: increment(total), totalEarned: increment(interest) });
-  S.data.balance += total; S.data.totalEarned += interest;
-  refreshUI(); loadSavings(); toast(`Withdrawn ${total} TC!`, 'success');
-}
-window.claimSav = claimSav;
-
-// ── SUBSCRIPTION ──
-function subPlan(plan) { document.getElementById('subPlan').value = plan; document.getElementById('subModal').classList.add('show'); }
-window.subPlan = subPlan;
-async function submitSub() {
-  const plan = document.getElementById('subPlan').value;
-  const file = document.getElementById('subFile').files[0];
-  if (!file) return toast('Upload payment screenshot', 'error');
-  let url; try { url = await upFile(file, `subs/${S.uid}/${gid()}`); } catch (e) { return toast('Upload failed', 'error'); }
-  await addDoc(collection(db, 'subscriptions'), { userId: S.uid, userName: S.data?.name, plan, screenshot: url, status: 'pending', createdAt: serverTimestamp() });
-  closeM('subModal'); toast('Subscription request submitted!', 'info');
-}
-window.submitSub = submitSub;
-
-// ── ADVERTISING ──
-document.getElementById('adFormFile').addEventListener('change', function() { document.getElementById('adFormFileName').textContent = this.files[0]?.name || ''; });
-async function submitAdForm() {
-  const title = document.getElementById('adFormTitle').value.trim();
-  const link = document.getElementById('adFormLink').value.trim();
-  const desc = document.getElementById('adFormDesc').value.trim();
-  const type = document.getElementById('adFormType').value;
-  const file = document.getElementById('adFormFile').files[0];
-  if (!title || !link) return toast('Title and link required', 'error');
-  if (!file) return toast('Upload payment screenshot', 'error');
-  let url; try { url = await upFile(file, `adverts/${S.uid}/${gid()}`); } catch (e) { return toast('Upload failed', 'error'); }
-  await addDoc(collection(db, 'advertisements'), { userId: S.uid, userName: S.data?.name, title, link, description: desc, type, screenshot: url, status: 'pending', createdAt: serverTimestamp() });
-  document.getElementById('adFormTitle').value = ''; document.getElementById('adFormLink').value = ''; document.getElementById('adFormDesc').value = ''; document.getElementById('adFormFileName').textContent = '';
-  loadMyAds(); toast('Ad submitted!', 'info');
-}
-window.submitAdForm = submitAdForm;
-async function loadMyAds() {
-  const snap = await getDocs(query(collection(db, 'advertisements'), where('userId', '==', S.uid)));
-  const ads = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const c = document.getElementById('myAdSubs');
-  if (!ads.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-rocket" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No submissions</p></div>'; return; }
-  c.innerHTML = ads.map(a => `<div class="glass-card p-4"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><p style="font-weight:600;font-size:13px">${a.title}</p><span class="badge ${a.status === 'approved' ? 'badge-success' : a.status === 'rejected' ? 'badge-rejected' : 'badge-pending'}">${a.status}</span></div><p style="font-size:11px;color:var(--muted)">${a.type} · ${fdt(a.createdAt)}</p></div>`).join('');
-}
-
-// ── UPGRADE ──
-const UPG = [
-  { lvl:1, cost:100, mult:1.2, label:'Starter', clr:'from-gray-400 to-gray-600' },
-  { lvl:2, cost:300, mult:1.5, label:'Bronze', clr:'from-amber-600 to-amber-800' },
-  { lvl:3, cost:500, mult:2, label:'Silver', clr:'from-gray-300 to-gray-500' },
-  { lvl:4, cost:1000, mult:2.5, label:'Gold', clr:'from-yellow-400 to-yellow-600' },
-  { lvl:5, cost:3000, mult:3, label:'Platinum', clr:'from-cyan-400 to-blue-600' },
-  { lvl:6, cost:5000, mult:4, label:'Diamond', clr:'from-sky-300 to-indigo-500' },
-  { lvl:7, cost:8000, mult:5, label:'Master', clr:'from-purple-400 to-pink-600' },
-  { lvl:8, cost:10000, mult:7, label:'Legend', clr:'from-red-500 to-orange-600' }
-];
-function renderUpgrades() {
-  const cm = S.data?.multiplier || 1;
-  document.getElementById('upgList').innerHTML = UPG.map(u => {
-    const active = cm >= u.mult;
-    return `<div class="glass-card p-4"><div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;font-family:'Syne',sans-serif;background:linear-gradient(135deg,#6366f1,#818cf8)">${u.lvl}</div><div><p style="font-weight:600;font-size:14px">${u.label}</p><p style="font-size:12px;color:var(--muted)">${u.mult}x multiplier</p></div></div><div style="text-align:right"><p class="coin-icon" style="font-size:13px"><i class="fas fa-coins"></i>${u.cost}</p>${active ? '<span class="badge badge-success" style="margin-top:4px;display:block">Active</span>' : `<button class="btn-primary btn-sm" style="margin-top:4px" onclick="openUpgM(${u.lvl})">Upgrade</button>`}</div></div></div>`;
-  }).join('');
-}
-function openUpgM(lvl) { document.getElementById('upgLvl').value = lvl; document.getElementById('upgModal').classList.add('show'); }
-window.openUpgM = openUpgM;
-async function submitUpg() {
-  const lvl = parseInt(document.getElementById('upgLvl').value);
-  const file = document.getElementById('upgFile').files[0];
-  if (!file) return toast('Upload payment screenshot', 'error');
-  let url; try { url = await upFile(file, `upgrades/${S.uid}/${gid()}`); } catch (e) { return toast('Upload failed', 'error'); }
-  await addDoc(collection(db, 'upgrades'), { userId: S.uid, userName: S.data?.name, level: lvl, screenshot: url, status: 'pending', createdAt: serverTimestamp() });
-  closeM('upgModal'); toast('Upgrade request submitted!', 'info');
-}
-window.submitUpg = submitUpg;
-
-// ── WITHDRAW ──
-async function submitWithdraw() {
-  const amt = parseInt(document.getElementById('wAmt').value);
-  const method = document.getElementById('wMethod').value;
-  const acct = document.getElementById('wAcct').value.trim();
-  if (!amt || amt < 100) return toast('Minimum 100 TC', 'error');
-  if (amt > (S.data?.balance || 0)) return toast('Insufficient balance', 'error');
-  if (!acct) return toast('Enter account details', 'error');
-  await updateDoc(doc(db, 'users', S.uid), { balance: increment(-amt) });
-  await addDoc(collection(db, 'withdrawals'), { userId: S.uid, userName: S.data?.name, userEmail: S.data?.email, amount: amt, method, account: acct, status: 'pending', createdAt: serverTimestamp() });
-  document.getElementById('wAmt').value = ''; document.getElementById('wAcct').value = '';
-  S.data.balance -= amt; refreshUI(); loadWithdrawHist(); toast('Withdrawal submitted!', 'info');
-}
-window.submitWithdraw = submitWithdraw;
-async function loadWithdrawHist() {
-  const snap = await getDocs(query(collection(db, 'withdrawals'), where('userId', '==', S.uid), orderBy('createdAt', 'desc')));
-  const ws = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  const c = document.getElementById('wHist');
-  if (!ws.length) { c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-history" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No withdrawals</p></div>'; return; }
-  c.innerHTML = ws.map(w => `<div class="glass-card p-4"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-weight:700">${w.amount} TC</span><span class="badge ${w.status === 'approved' ? 'badge-success' : w.status === 'rejected' ? 'badge-rejected' : 'badge-pending'}">${w.status}</span></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)"><span>${w.method}: ${w.account}</span><span>${fdt(w.createdAt)}</span></div></div>`).join('');
-}
-
-// ── COPY REFERRAL ──
-function copyRef() {
-  const code = document.getElementById('refCode').value;
-  navigator.clipboard.writeText(code).then(() => toast('Copied!', 'success')).catch(() => toast('Copied!', 'success'));
-}
-window.copyRef = copyRef;
-
-// ══════════════════════════════════════
-// ADMIN FUNCTIONS
-// ══════════════════════════════════════
-
-function aGo(page) {
-  document.querySelectorAll('.aPage').forEach(p => p.style.display = 'none');
-  const map = { overview:'aOverview', users:'aUsers', videos:'aVideos', ads:'aAds', tasks:'aTasks', withdrawals:'aWithdrawals', adreq:'aAdreq', subs:'aSubs', savings:'aSavings', notifs:'aNotifs' };
-  const el = document.getElementById(map[page]); if (el) el.style.display = 'block';
-  document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.toggle('active', n.dataset.a === page));
-  const titles = { overview:'Overview', users:'Users', videos:'Videos', ads:'Ads', tasks:'Tasks', withdrawals:'Withdrawals', adreq:'Ad Requests', subs:'Subscriptions', savings:'Savings', notifs:'Notifications' };
-  document.getElementById('aTitle').textContent = titles[page] || page;
-  document.getElementById('aSide').classList.remove('open');
-  document.getElementById('sideOverlay').classList.remove('show');
-  loadAdminPage(page);
-}
-window.aGo = aGo;
-
-function openSidebar() {
-  document.getElementById('aSide').classList.add('open');
-  document.getElementById('sideOverlay').classList.add('show');
-}
-function closeSidebar() {
-  document.getElementById('aSide').classList.remove('open');
-  document.getElementById('sideOverlay').classList.remove('show');
-}
-window.openSidebar = openSidebar;
-window.closeSidebar = closeSidebar;
-
-function loadAdminPage(p) {
-  switch(p) {
-    case 'overview': loadAdminOverview(); break;
-    case 'users': loadAdminUsers(); break;
-    case 'videos': loadAdminVideos(); break;
-    case 'ads': loadAdminAds(); break;
-    case 'tasks': loadAdminTasks(); break;
-    case 'withdrawals': loadAdminWithdrawals(); break;
-    case 'adreq': loadAdminAdReqs(); break;
-    case 'subs': loadAdminSubs(); break;
-    case 'savings': loadAdminSavings(); break;
-    case 'notifs': loadNotifHist(); break;
-  }
-}
-
-async function loadAdminOverview() {
-  const uSnap = await getDocs(collection(db, 'users'));
-  const users = uSnap.docs.map(d => d.data());
-  document.getElementById('aTotUsers').textContent = users.length;
-  document.getElementById('aTotEarned').textContent = users.reduce((s, u) => s + (u.totalEarned || 0), 0);
-  document.getElementById('aTotCoins').textContent = users.reduce((s, u) => s + (u.balance || 0), 0);
-  const wSnap = await getDocs(query(collection(db, 'withdrawals'), where('status', '==', 'pending')));
-  document.getElementById('aPendW').textContent = wSnap.size;
-  const aSnap = await getDocs(query(collection(db, 'advertisements'), where('status', '==', 'pending')));
-  document.getElementById('aPendAd').textContent = aSnap.size;
-}
-
-let allUsersCache = [];
-async function loadAdminUsers() {
-  const snap = await getDocs(collection(db, 'users'));
-  allUsersCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderUserList(allUsersCache);
-}
-function renderUserList(users) {
-  document.getElementById('aUserList').innerHTML = users.map(u => `<div class="glass-card p-4"><div style="display:flex;align-items:center;gap:12px"><div class="avatar" style="background:linear-gradient(135deg,#6366f1,#818cf8)">${(u.name||'U').charAt(0)}</div><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:13px">${u.name || 'User'} ${u.blocked ? '<span class="badge badge-rejected" style="font-size:10px">Blocked</span>' : ''}</p><p style="font-size:11px;color:var(--muted)">${u.email} · ${u.balance || 0} TC · ${u.subscription || 'free'}</p></div></div><div style="display:flex;gap:6px;margin-top:10px"><button class="btn-${u.kycStatus==='verified'?'secondary':'accent'} btn-sm" onclick="toggleKYC('${u.id}','${u.kycStatus||'pending'}')">${u.kycStatus==='verified'?'KYC ✓':'Verify KYC'}</button><button class="btn-${u.blocked?'accent':'danger'} btn-sm" onclick="toggleBlock('${u.id}',${!!u.blocked})">${u.blocked?'Unblock':'Block'}</button></div></div>`).join('') || '<div style="text-align:center;padding:40px;color:var(--muted)">No users</div>';
-}
-function filterU() { const q = document.getElementById('uSearch').value.toLowerCase(); renderUserList(allUsersCache.filter(u => (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q))); }
-window.filterU = filterU;
-async function toggleBlock(uid, blocked) { await updateDoc(doc(db, 'users', uid), { blocked: !blocked }); loadAdminUsers(); toast(blocked ? 'Unblocked' : 'Blocked', 'info'); }
-window.toggleBlock = toggleBlock;
-async function toggleKYC(uid, status) { await updateDoc(doc(db, 'users', uid), { kycStatus: status === 'verified' ? 'pending' : 'verified' }); loadAdminUsers(); toast(status === 'verified' ? 'KYC reverted' : 'KYC verified!', 'success'); }
-window.toggleKYC = toggleKYC;
-
-async function loadAdminVideos() {
-  const snap = await getDocs(collection(db, 'videos'));
-  const vids = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  document.getElementById('aVidList').innerHTML = vids.map(v => `<div class="glass-card p-4" style="display:flex;align-items:center;justify-content:space-between"><div><p style="font-weight:600;font-size:13px">${v.title}</p><p style="font-size:11px;color:var(--muted)">Reward: ${v.reward || 5} · ${v.active ? 'Active' : 'Inactive'}</p></div><div style="display:flex;gap:6px"><button class="btn-secondary btn-sm" onclick="togVid('${v.id}',${!v.active})">${v.active ? 'Disable' : 'Enable'}</button><button class="btn-danger btn-sm" onclick="delVid('${v.id}')"><i class="fas fa-trash"></i></button></div></div>`).join('') || '<p style="color:var(--muted);font-size:13px">No videos</p>';
-}
-async function addVideo() {
-  const title = document.getElementById('avTitle').value.trim();
-  const url = document.getElementById('avUrl').value.trim();
-  const reward = parseInt(document.getElementById('avReward').value) || 5;
-  if (!title || !url) return toast('Fill all fields', 'error');
-  await addDoc(collection(db, 'videos'), { title, url, reward, active: true, createdAt: serverTimestamp() });
-  document.getElementById('avTitle').value = ''; document.getElementById('avUrl').value = '';
-  loadAdminVideos(); toast('Video added!', 'success');
-}
-window.addVideo = addVideo;
-async function togVid(id, active) { await updateDoc(doc(db, 'videos', id), { active }); loadAdminVideos(); }
-window.togVid = togVid;
-async function delVid(id) { await deleteDoc(doc(db, 'videos', id)); loadAdminVideos(); toast('Deleted', 'info'); }
-window.delVid = delVid;
-
-async function loadAdminAds() {
-  const snap = await getDocs(collection(db, 'ads'));
-  const ads = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  document.getElementById('aAdList').innerHTML = ads.map(a => `<div class="glass-card p-4" style="display:flex;align-items:center;justify-content:space-between"><div><p style="font-weight:600;font-size:13px">${a.title}</p><p style="font-size:11px;color:var(--muted)">Reward: ${a.reward || 3} · ${a.clicks || 0} clicks</p></div><div style="display:flex;gap:6px"><button class="btn-secondary btn-sm" onclick="togAd('${a.id}',${!a.active})">${a.active ? 'Disable' : 'Enable'}</button><button class="btn-danger btn-sm" onclick="delAd('${a.id}')"><i class="fas fa-trash"></i></button></div></div>`).join('') || '<p style="color:var(--muted);font-size:13px">No ads</p>';
-}
-async function addAd() {
-  const title = document.getElementById('aaTitle').value.trim();
-  const link = document.getElementById('aaLink').value.trim();
-  const reward = parseInt(document.getElementById('aaReward').value) || 3;
-  if (!title || !link) return toast('Fill all fields', 'error');
-  await addDoc(collection(db, 'ads'), { title, link, reward, active: true, clicks: 0, createdAt: serverTimestamp() });
-  document.getElementById('aaTitle').value = ''; document.getElementById('aaLink').value = '';
-  loadAdminAds(); toast('Ad added!', 'success');
-}
-window.addAd = addAd;
-async function togAd(id, active) { await updateDoc(doc(db, 'ads', id), { active }); loadAdminAds(); }
-window.togAd = togAd;
-async function delAd(id) { await deleteDoc(doc(db, 'ads', id)); loadAdminAds(); toast('Deleted', 'info'); }
-window.delAd = delAd;
-
-async function loadAdminTasks() {
-  const tSnap = await getDocs(collection(db, 'tasks'));
-  const tasks = tSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-  let html = '<h3 class="font-heading font-bold mb-3">All Tasks</h3>';
-  html += tasks.map(t => `<div class="glass-card p-4 mb-2" style="display:flex;align-items:center;justify-content:space-between"><div><p style="font-weight:600;font-size:13px">${t.title}</p><p style="font-size:11px;color:var(--muted)">Reward: ${t.reward || 20} TC</p></div><div style="display:flex;gap:6px"><button class="btn-secondary btn-sm" onclick="togTask('${t.id}',${!t.active})">${t.active ? 'Disable' : 'Enable'}</button><button class="btn-danger btn-sm" onclick="delTask('${t.id}')"><i class="fas fa-trash"></i></button></div></div>`).join('') || '<p style="color:var(--muted);font-size:13px;margin-bottom:16px">No tasks</p>';
-  const sSnap = await getDocs(query(collection(db, 'taskSubmissions'), where('status', '==', 'pending')));
-  const subs = sSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-  html += `<h3 class="font-heading font-bold mt-4 mb-3">Pending Submissions (${subs.length})</h3>`;
-  html += subs.map(s => `<div class="glass-card p-4 mb-2"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><p style="font-weight:600;font-size:13px">${s.userName}</p><span class="badge badge-pending">Pending</span></div>${s.proofUrl ? `<img src="${s.proofUrl}" style="width:80px;height:80px;object-fit:cover;border-radius:10px;margin-bottom:8px" alt="Proof">` : ''}${s.note ? `<p style="font-size:12px;color:var(--muted);margin-bottom:8px">${s.note}</p>` : ''}<div style="display:flex;gap:6px"><button class="btn-accent btn-sm" onclick="approveTask('${s.id}','${s.userId}','${s.taskId}')"><i class="fas fa-check mr-1"></i>Approve</button><button class="btn-danger btn-sm" onclick="rejectTask('${s.id}')"><i class="fas fa-times mr-1"></i>Reject</button></div></div>`).join('') || '<p style="color:var(--muted);font-size:13px">No pending submissions</p>';
-  document.getElementById('aTaskSubs').innerHTML = html;
-}
-async function addTask() {
-  const title = document.getElementById('atTitle').value.trim();
-  const desc = document.getElementById('atDesc').value.trim();
-  const reward = parseInt(document.getElementById('atReward').value) || 20;
-  if (!title) return toast('Enter task title', 'error');
-  await addDoc(collection(db, 'tasks'), { title, description: desc, reward, active: true, createdAt: serverTimestamp() });
-  document.getElementById('atTitle').value = ''; document.getElementById('atDesc').value = '';
-  loadAdminTasks(); toast('Task created!', 'success');
-}
-window.addTask = addTask;
-async function togTask(id, active) { await updateDoc(doc(db, 'tasks', id), { active }); loadAdminTasks(); }
-window.togTask = togTask;
-async function delTask(id) { await deleteDoc(doc(db, 'tasks', id)); loadAdminTasks(); toast('Deleted', 'info'); }
-window.delTask = delTask;
-async function approveTask(subId, userId, taskId) {
-  const tSnap = await getDoc(doc(db, 'tasks', taskId));
-  const reward = tSnap.exists() ? (tSnap.data().reward || 20) : 20;
-  await updateDoc(doc(db, 'taskSubmissions', subId), { status: 'approved' });
-  await updateDoc(doc(db, 'users', userId), { balance: increment(reward), totalEarned: increment(reward), tasksCompleted: increment(1) });
-  loadAdminTasks(); toast('Task approved!', 'success');
-}
-window.approveTask = approveTask;
-async function rejectTask(subId) { await updateDoc(doc(db, 'taskSubmissions', subId), { status: 'rejected' }); loadAdminTasks(); toast('Rejected', 'info'); }
-window.rejectTask = rejectTask;
-
-async function loadAdminWithdrawals() {
-  const snap = await getDocs(query(collection(db, 'withdrawals'), orderBy('createdAt', 'desc')));
-  const ws = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  document.getElementById('aWList').innerHTML = ws.map(w => `<div class="glass-card p-4"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div><p style="font-weight:600;font-size:13px">${w.userName}</p><p style="font-size:11px;color:var(--muted)">${w.method}: ${w.account} · ${fdt(w.createdAt)}</p></div><div style="text-align:right"><p style="font-weight:700">${w.amount} TC</p><span class="badge ${w.status === 'approved' ? 'badge-success' : w.status === 'rejected' ? 'badge-rejected' : 'badge-pending'}">${w.status}</span></div></div>${w.status === 'pending' ? `<div style="display:flex;gap:6px;margin-top:8px"><button class="btn-accent btn-sm" onclick="approveW('${w.id}','${w.userId}',${w.amount})"><i class="fas fa-check mr-1"></i>Approve</button><button class="btn-danger btn-sm" onclick="rejectW('${w.id}','${w.userId}',${w.amount})"><i class="fas fa-times mr-1"></i>Reject</button></div>` : ''}</div>`).join('') || '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-check-circle" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No withdrawals</p></div>';
-}
-async function approveW(id, userId, amt) { await updateDoc(doc(db, 'withdrawals', id), { status: 'approved' }); await updateDoc(doc(db, 'users', userId), { withdrawn: increment(amt) }); loadAdminWithdrawals(); loadAdminOverview(); toast('Approved!', 'success'); }
-window.approveW = approveW;
-async function rejectW(id, userId, amt) { await updateDoc(doc(db, 'withdrawals', id), { status: 'rejected' }); await updateDoc(doc(db, 'users', userId), { balance: increment(amt) }); loadAdminWithdrawals(); loadAdminOverview(); toast('Rejected, balance returned', 'info'); }
-window.rejectW = rejectW;
-
-async function loadAdminAdReqs() {
-  const snap = await getDocs(query(collection(db, 'advertisements'), orderBy('createdAt', 'desc')));
-  const ads = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  document.getElementById('aAdReqList').innerHTML = ads.map(a => `<div class="glass-card p-4"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><p style="font-weight:600;font-size:13px">${a.title}</p><span class="badge ${a.status === 'approved' ? 'badge-success' : a.status === 'rejected' ? 'badge-rejected' : 'badge-pending'}">${a.status}</span></div><p style="font-size:11px;color:var(--muted)">${a.type} · ${a.userName} · ${fdt(a.createdAt)}</p>${a.description ? `<p style="font-size:11px;color:var(--muted);margin-top:4px">${a.description}</p>` : ''}${a.status === 'pending' ? `<div style="display:flex;gap:6px;margin-top:10px"><button class="btn-accent btn-sm" onclick="approveAdR('${a.id}','${(a.title||'').replace(/'/g,"\\'")}','${(a.link||'').replace(/'/g,"\\'")}')"><i class="fas fa-check mr-1"></i>Approve & Publish</button><button class="btn-danger btn-sm" onclick="rejectAdR('${a.id}')"><i class="fas fa-times mr-1"></i>Reject</button></div>` : ''}</div>`).join('') || '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-rocket" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No requests</p></div>';
-}
-async function approveAdR(id, title, link) {
-  await updateDoc(doc(db, 'advertisements', id), { status: 'approved' });
-  await addDoc(collection(db, 'ads'), { title, link, reward: 3, active: true, clicks: 0, createdAt: serverTimestamp() });
-  loadAdminAdReqs(); loadAdminOverview(); toast('Ad published!', 'success');
-}
-window.approveAdR = approveAdR;
-async function rejectAdR(id) { await updateDoc(doc(db, 'advertisements', id), { status: 'rejected' }); loadAdminAdReqs(); toast('Rejected', 'info'); }
-window.rejectAdR = rejectAdR;
-
-async function loadAdminSubs() {
-  const snap = await getDocs(query(collection(db, 'subscriptions'), orderBy('createdAt', 'desc')));
-  const subs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  document.getElementById('aSubList').innerHTML = subs.map(s => `<div class="glass-card p-4"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><p style="font-weight:600;font-size:13px">${s.userName} — ${(s.plan||'').toUpperCase()}</p><span class="badge ${s.status === 'approved' ? 'badge-success' : s.status === 'rejected' ? 'badge-rejected' : 'badge-pending'}">${s.status}</span></div><p style="font-size:11px;color:var(--muted)">${fdt(s.createdAt)}</p>${s.status === 'pending' ? `<div style="display:flex;gap:6px;margin-top:10px"><button class="btn-accent btn-sm" onclick="approveSub('${s.id}','${s.userId}','${s.plan}')"><i class="fas fa-check mr-1"></i>Approve</button><button class="btn-danger btn-sm" onclick="rejectSub('${s.id}')"><i class="fas fa-times mr-1"></i>Reject</button></div>` : ''}</div>`).join('') || '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-crown" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No requests</p></div>';
-}
-async function approveSub(id, userId, plan) {
-  const mults = { silver: 1.5, gold: 2, platinum: 3 };
-  await updateDoc(doc(db, 'subscriptions', id), { status: 'approved' });
-  await updateDoc(doc(db, 'users', userId), { subscription: plan, multiplier: mults[plan] || 1 });
-  loadAdminSubs(); toast('Subscription activated!', 'success');
-}
-window.approveSub = approveSub;
-async function rejectSub(id) { await updateDoc(doc(db, 'subscriptions', id), { status: 'rejected' }); loadAdminSubs(); toast('Rejected', 'info'); }
-window.rejectSub = rejectSub;
-
-async function loadAdminSavings() {
-  const snap = await getDocs(collection(db, 'savings'));
-  const savs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  document.getElementById('aSavList').innerHTML = savs.map(s => `<div class="glass-card p-4"><div style="display:flex;justify-content:space-between"><div><p style="font-weight:600;font-size:13px">${s.userName || 'Unknown'} — ${s.amount} TC</p><p style="font-size:11px;color:var(--muted)">${s.duration} days @ ${s.rate}% · ${fdt(s.startDate)}</p></div><span class="badge ${s.status === 'active' ? 'badge-active' : 'badge-success'}">${s.status}</span></div></div>`).join('') || '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fas fa-piggy-bank" style="font-size:32px;display:block;margin-bottom:8px"></i><p>No savings</p></div>';
-}
-
-async function sendNotif() {
-  const title = document.getElementById('nTitle').value.trim();
-  const body = document.getElementById('nBody').value.trim();
-  const target = document.getElementById('nTarget').value;
-  if (!title || !body) return toast('Fill all fields', 'error');
-  await addDoc(collection(db, 'notifications'), { title, body, target, createdAt: serverTimestamp() });
-  document.getElementById('nTitle').value = ''; document.getElementById('nBody').value = '';
-  loadNotifHist(); toast('Notification sent!', 'success');
-}
-window.sendNotif = sendNotif;
-async function loadNotifHist() {
-  const snap = await getDocs(query(collection(db, 'notifications'), orderBy('createdAt', 'desc')));
-  document.getElementById('nHist').innerHTML = snap.docs.map(d => { const n = d.data(); return `<div class="glass-card p-4"><p style="font-weight:600;font-size:13px">${n.title}</p><p style="font-size:12px;margin-top:4px;color:var(--muted)">${n.body}</p><p style="font-size:11px;margin-top:8px;color:var(--muted)">To: ${n.target} · ${fdt(n.createdAt)}</p></div>`; }).join('') || '<p style="font-size:13px;color:var(--muted)">No notifications</p>';
-}
-
-// ── DARK MODE ──
-function toggleDark() {
-  const dark = !document.documentElement.classList.contains('dark');
-  document.documentElement.classList.toggle('dark', dark);
-  document.querySelectorAll('#dkIcon, .admin-main header .fa-moon, .admin-main header .fa-sun').forEach(i => { i.className = dark ? 'fas fa-moon text-sm' : 'fas fa-sun text-sm'; });
-  localStorage.setItem('tmining_dk', dark);
-}
-window.toggleDark = toggleDark;
-if (localStorage.getItem('tmining_dk') === 'false') { document.documentElement.classList.remove('dark'); }
-</script>
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
